@@ -561,7 +561,7 @@ jobs:
           install_swiftlint: << parameters.install_swiftlint >>
       - macos/preboot-simulator:
           device: iPhone 15
-          version: "17.2.0"
+          version: '17.2'
       - attach_workspace:
           at: .
       - run:
