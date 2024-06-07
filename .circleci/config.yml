@@ -570,6 +570,7 @@ jobs:
             CLASSNAMES=$(circleci tests glob "Tests/UnitTests/**/*.swift" "Tests/StoreKitUnitTests/**/*.swift" "Tests/ReceiptParserTests/**/*.swift"\
               | sed 's@/@.@g' \
               | sed 's/.swift//' \
+              | sed 's/^Tests\.//' \
               | circleci tests split --split-by=timings --timings-type=classname)
             FASTLANE_ARGS=$(echo $CLASSNAMES | sed -e 's/\./\//g' -e 's/ /,/g')
             bundle exec fastlane test_ios tests:$FASTLANE_ARGS
