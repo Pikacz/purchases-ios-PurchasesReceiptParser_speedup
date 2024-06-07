@@ -158,7 +158,48 @@ platform :ios do
       configuration: 'Debug',
       output_directory: "fastlane/test_output/xctest/ios",
       number_of_retries: generate_snapshots ? 0 : 5,
-      fail_build: !generate_snapshots
+      fail_build: !generate_snapshots,
+      only_testing: options[:tests],
+      derived_data_path: "dist",
+      test_without_building: true
+    )
+  end
+
+  desc "Runs all the iOS tests"
+  lane :build_for_test_ios do |options|
+    generate_snapshots = ENV["CIRCLECI_TESTS_GENERATE_SNAPSHOTS"] == "true"
+
+    # For platforms that fail to run StoreKit tests.
+    # See https://developer.apple.com/forums/thread/724068 and `FB12223404`.
+    skip_sk_tests = options[:skip_sk_tests]
+
+    if generate_snapshots
+      if skip_sk_tests
+        test_plan = "CI-RevenueCat-Snapshots"
+      else
+        test_plan = "CI-Snapshots"
+      end
+    elsif skip_sk_tests
+      test_plan = "CI-RevenueCat"
+    else
+      test_plan = "CI-AllTests"
+    end
+
+    scan(
+      step_name: "scan - iPhone",
+      device: ENV['SCAN_DEVICE'] || "iPhone 12 (15.2)",
+      derived_data_path: "dist",
+      ensure_devices_found: true,
+      scheme: "RevenueCat",
+      prelaunch_simulator: true,
+      output_types: 'junit',
+      result_bundle: true,
+      testplan: test_plan,
+      configuration: 'Debug',
+      output_directory: "fastlane/test_output/xctest/ios",
+      number_of_retries: generate_snapshots ? 0 : 5,
+      fail_build: !generate_snapshots,
+      build_for_testing: true
     )
   end
 

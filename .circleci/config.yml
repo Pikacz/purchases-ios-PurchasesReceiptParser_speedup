@@ -554,13 +554,22 @@ jobs:
 
   run-test-ios-17:
     <<: *base-job
+    parallelism: 2
     steps:
       - checkout
       - install-dependencies:
           install_swiftlint: << parameters.install_swiftlint >>
+      - attach_workspace:
+          at: .
       - run:
-          name: Run tests
-          command: bundle exec fastlane test_ios
+          name: Split tests and run tests
+          command: |
+            CLASSNAMES=$(circleci tests glob "CircleCIDemoUITests/*.swift" \
+              | sed 's@/@.@g' \
+              | sed 's/.swift//' \
+              | circleci tests split --split-by=timings --timings-type=classname)
+            FASTLANE_ARGS=$(echo $CLASSNAMES | sed -e 's/\./\//g' -e 's/ /,/g')
+            bundle exec fastlane test_ios tests:$FASTLANE_ARGS
           no_output_timeout: 15m
           environment:
             SCAN_DEVICE: iPhone 15 (17.2.0)
@@ -576,6 +585,23 @@ jobs:
       - store_artifacts:
           path: fastlane/test_output/xctest
           destination: scan-test-output
+
+  build-for-run-test-ios-17:
+    <<: *base-job
+    steps:
+      - checkout
+      - install-dependencies:
+          install_swiftlint: << parameters.install_swiftlint >>
+      - run:
+          name: Run tests
+          command: bundle exec fastlane build_for_test_ios
+          no_output_timeout: 15m
+          environment:
+            SCAN_DEVICE: iPhone 15 (17.2.0)
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
 
   run-test-ios-16:
     <<: *base-job
@@ -1160,8 +1186,12 @@ workflows:
   generate-snapshot:
     when: << pipeline.parameters.generate_snapshots >>
     jobs:
+      - build-for-run-test-ios-17:
+          xcode_version: '15.2'
       - run-test-ios-17:
           xcode_version: '15.2'
+          requires:
+            - build-for-run-test-ios-17
       - run-test-ios-16:
           xcode_version: '14.3.0'
           install_swiftlint: false
@@ -1220,6 +1250,12 @@ workflows:
           xcode_version: '15.2'
       - spm-revenuecat-ui-watchos
       - run-test-macos
+      - build-for-run-test-ios-17:
+          xcode_version: '15.2'
+      - run-test-ios-17:
+          xcode_version: '15.2'
+          requires:
+            - build-for-run-test-ios-17
       - run-test-ios-17:
           xcode_version: '15.2'
       - run-test-ios-16:
