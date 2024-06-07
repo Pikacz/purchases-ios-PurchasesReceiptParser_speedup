@@ -1,5 +1,5 @@
 orbs:
-  macos: circleci/macos@2.0.1
+  macos: circleci/macos@2.5.1
   slack: circleci/slack@4.10.1
   # Disabled until compatible with M1: codecov: codecov/codecov@3.3.0
   # codecov: codecov/codecov@3.3.0
