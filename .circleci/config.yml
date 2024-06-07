@@ -567,7 +567,7 @@ jobs:
       - run:
           name: Split tests and run tests
           command: |
-            CLASSNAMES=$(circleci tests glob "Tests/*.swift" \
+            CLASSNAMES=$(circleci tests glob "Tests/UnitTests/**/*.swift" "Tests/StoreKitUnitTests/**/*.swift" "Tests/ReceiptParserTests/**/*.swift"\
               | sed 's@/@.@g' \
               | sed 's/.swift//' \
               | circleci tests split --split-by=timings --timings-type=classname)
