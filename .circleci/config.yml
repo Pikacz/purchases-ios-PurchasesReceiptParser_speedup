@@ -559,12 +559,15 @@ jobs:
       - checkout
       - install-dependencies:
           install_swiftlint: << parameters.install_swiftlint >>
+      - macos/preboot-simulator:
+          device: iPhone 15
+          version: "17.2.0"
       - attach_workspace:
           at: .
       - run:
           name: Split tests and run tests
           command: |
-            CLASSNAMES=$(circleci tests glob "CircleCIDemoUITests/*.swift" \
+            CLASSNAMES=$(circleci tests glob "Tests/*.swift" \
               | sed 's@/@.@g' \
               | sed 's/.swift//' \
               | circleci tests split --split-by=timings --timings-type=classname)

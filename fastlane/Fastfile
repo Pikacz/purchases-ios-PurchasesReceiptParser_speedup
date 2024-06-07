@@ -151,7 +151,6 @@ platform :ios do
       device: ENV['SCAN_DEVICE'] || "iPhone 12 (15.2)",
       ensure_devices_found: true,
       scheme: "RevenueCat",
-      prelaunch_simulator: true,
       output_types: 'junit',
       result_bundle: true,
       testplan: test_plan,
@@ -188,17 +187,14 @@ platform :ios do
     scan(
       step_name: "scan - iPhone",
       device: ENV['SCAN_DEVICE'] || "iPhone 12 (15.2)",
-      derived_data_path: "dist",
-      ensure_devices_found: true,
       scheme: "RevenueCat",
-      prelaunch_simulator: true,
       output_types: 'junit',
       result_bundle: true,
       testplan: test_plan,
       configuration: 'Debug',
       output_directory: "fastlane/test_output/xctest/ios",
-      number_of_retries: generate_snapshots ? 0 : 5,
       fail_build: !generate_snapshots,
+      derived_data_path: "dist",
       build_for_testing: true
     )
   end
