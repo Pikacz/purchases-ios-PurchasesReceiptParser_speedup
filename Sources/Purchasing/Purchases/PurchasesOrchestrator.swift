@@ -893,26 +893,24 @@ private extension PurchasesOrchestrator {
                                     error: PublicError?) {
         if #available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *),
         let diagnosticsTracker = self.diagnosticsTracker {
-            Task(priority: .background) {
-                let errorMessage =
-                (error?.userInfo[NSUnderlyingErrorKey] as? Error)?.localizedDescription ?? error?.localizedDescription
-                let errorCode = error?.code
-                let storeKitErrorDescription: String?
+            let errorMessage =
+            (error?.userInfo[NSUnderlyingErrorKey] as? Error)?.localizedDescription ?? error?.localizedDescription
+            let errorCode = error?.code
+            let storeKitErrorDescription: String?
 
-                if let skError = error?.userInfo[NSUnderlyingErrorKey] as? SKError {
-                    storeKitErrorDescription = skError.code.trackingDescription
-                } else if let storeKitError = error?.userInfo[NSUnderlyingErrorKey] as? StoreKitError {
-                    storeKitErrorDescription = storeKitError.trackingDescription
-                } else {
-                    storeKitErrorDescription = nil
-                }
-
-                await diagnosticsTracker.trackPurchaseRequest(wasSuccessful: error == nil,
-                                                              storeKitVersion: storeKitVersion,
-                                                              errorMessage: errorMessage,
-                                                              errorCode: errorCode,
-                                                              storeKitErrorDescription: storeKitErrorDescription)
+            if let skError = error?.userInfo[NSUnderlyingErrorKey] as? SKError {
+                storeKitErrorDescription = skError.code.trackingDescription
+            } else if let storeKitError = error?.userInfo[NSUnderlyingErrorKey] as? StoreKitError {
+                storeKitErrorDescription = storeKitError.trackingDescription
+            } else {
+                storeKitErrorDescription = nil
             }
+
+            diagnosticsTracker.trackPurchaseRequest(wasSuccessful: error == nil,
+                                                    storeKitVersion: storeKitVersion,
+                                                    errorMessage: errorMessage,
+                                                    errorCode: errorCode,
+                                                    storeKitErrorDescription: storeKitErrorDescription)
         }
     }
 

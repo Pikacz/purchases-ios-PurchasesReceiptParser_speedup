@@ -144,6 +144,7 @@ private extension ProductsManager {
             let errorMessage = (error?.userInfo[NSUnderlyingErrorKey] as? Error)?.localizedDescription
                 ?? error?.localizedDescription
             let errorCode = error?.errorCode
+
             let storeKitErrorDescription: String?
             if let skError = error?.userInfo[NSUnderlyingErrorKey] as? SKError {
                 storeKitErrorDescription = skError.code.trackingDescription
@@ -152,14 +153,13 @@ private extension ProductsManager {
             } else {
                 storeKitErrorDescription = nil
             }
-            Task(priority: .background) {
-                await diagnosticsTracker.trackProductsRequest(wasSuccessful: error == nil,
-                                                              storeKitVersion: storeKitVersion,
-                                                              errorMessage: errorMessage,
-                                                              errorCode: errorCode,
-                                                              storeKitErrorDescription: storeKitErrorDescription,
-                                                              responseTime: responseTime)
-            }
+
+            diagnosticsTracker.trackProductsRequest(wasSuccessful: error == nil,
+                                                    storeKitVersion: storeKitVersion,
+                                                    errorMessage: errorMessage,
+                                                    errorCode: errorCode,
+                                                    storeKitErrorDescription: storeKitErrorDescription,
+                                                    responseTime: responseTime)
         }
     }
 
